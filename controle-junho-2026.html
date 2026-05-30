@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Controle Financeiro — Junho 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f3f4f6;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    padding: 20px 16px 40px;
+    max-width: 480px;
+    margin: 0 auto;
+    color: #111;
+  }
+  .titulo-principal { font-size: 22px; font-weight: 800; }
+  .subtitulo { font-size: 13px; color: #6b7280; margin-top: 2px; margin-bottom: 20px; }
+
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    margin-bottom: 14px;
+  }
+  .card-dark {
+    background: #111;
+    color: #fff;
+    border-radius: 16px;
+    padding: 20px 18px;
+    margin-bottom: 14px;
+  }
+  .secao-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  /* Cabeçalho salário */
+  .salario-valor { font-size: 32px; font-weight: 800; color: #fff; margin-top: 4px; }
+  .salario-row { display: flex; gap: 16px; margin-top: 16px; }
+  .salario-item { flex: 1; }
+  .salario-item-label { font-size: 11px; color: #9ca3af; }
+  .salario-item-valor { font-size: 16px; font-weight: 700; }
+
+  /* Alerta */
+  .alerta {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #92400e;
+    line-height: 1.5;
+  }
+
+  /* Simulador */
+  .sim-titulo { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
+  .sim-row { margin-bottom: 14px; }
+  .sim-header { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
+  .sim-valor { font-weight: 700; }
+  input[type=range] {
+    width: 100%;
+    height: 6px;
+    border-radius: 99px;
+    outline: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid currentColor;
+    cursor: pointer;
+  }
+  .sim-minmax { display: flex; justify-content: space-between; font-size: 11px; color: #9ca3af; margin-top: 2px; }
+  .hbo-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-top: 1px solid #f3f4f6; }
+  .hbo-label { font-size: 13px; color: #374151; }
+  .btn-hbo {
+    border: none; border-radius: 99px; padding: 7px 16px;
+    font-size: 12px; font-weight: 700; cursor: pointer; color: #fff;
+    transition: background 0.2s;
+  }
+
+  /* Indicadores */
+  .indicadores { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .indicador {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+  }
+  .ind-label { font-size: 11px; color: #6b7280; margin-bottom: 4px; }
+  .ind-valor { font-size: 22px; font-weight: 800; }
+  .barra-bg { background: #e5e7eb; border-radius: 99px; height: 10px; overflow: hidden; margin-top: 6px; }
+  .barra-fill { height: 100%; border-radius: 99px; transition: width 0.3s, background 0.3s; }
+  .ind-sub { font-size: 10px; color: #9ca3af; margin-top: 4px; }
+
+  /* Status */
+  .status-box {
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.5;
+    transition: all 0.3s;
+  }
+
+  /* Linhas de parcela */
+  .linha-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  .linha-item:last-child { border-bottom: none; }
+  .linha-nome { font-size: 13px; font-weight: 600; }
+  .linha-sub { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+  .linha-valor { font-size: 15px; font-weight: 800; text-align: right; }
+  .linha-via { font-size: 10px; color: #9ca3af; }
+  .total-row {
+    display: flex; justify-content: space-between;
+    padding-top: 10px; border-top: 2px solid #111; margin-top: 2px;
+    font-size: 13px; font-weight: 700;
+  }
+  .total-valor { font-size: 15px; font-weight: 800; color: #dc2626; }
+
+  /* Automáticos cartão */
+  .auto-item {
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .auto-nome { font-size: 13px; font-weight: 700; }
+  .auto-vence { font-size: 11px; color: #6b7280; margin-top: 3px; }
+  .badge {
+    font-size: 10px; font-weight: 700; border-radius: 99px;
+    padding: 2px 8px; display: inline-block; margin-top: 4px;
+  }
+  .auto-valor { font-size: 16px; font-weight: 800; text-align: right; }
+  .auto-sub { font-size: 10px; text-align: right; margin-top: 2px; }
+  .card-meta {
+    background: #111; border-radius: 12px; padding: 12px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .meta-label { font-size: 12px; color: #9ca3af; }
+  .meta-sub { font-size: 11px; color: #6b7280; margin-top: 2px; }
+  .meta-valor { font-size: 20px; font-weight: 800; color: #4ade80; }
+
+  /* Débito disponível */
+  .debito-row { display: flex; justify-content: space-between; font-size: 13px; margin-top: 6px; }
+  .debito-total { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; border-top: 1px solid #f3f4f6; padding-top: 10px; margin-top: 6px; }
+  .debito-total-val { font-size: 16px; font-weight: 800; color: #2563eb; }
+  .aviso-debito {
+    background: #fffbeb; border: 1px solid #f59e0b;
+    border-radius: 10px; padding: 10px 12px;
+    margin-top: 14px; font-size: 12px; color: #92400e; line-height: 1.6;
+  }
+  .estrategia-titulo { font-size: 12px; font-weight: 700; color: #374151; margin: 14px 0 8px; }
+  .estrat-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+  .estrat-total { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; border-top: 2px solid #111; padding-top: 8px; margin-top: 4px; }
+  .resultado-orcamento {
+    border-radius: 10px; padding: 10px 12px;
+    margin-top: 12px; font-size: 12px; line-height: 1.6;
+  }
+
+  /* Regras */
+  .regra-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+  .regra-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .regra-emoji { font-size: 18px; flex-shrink: 0; }
+  .regra-texto { font-size: 13px; color: #374151; line-height: 1.5; }
+
+  /* Timeline */
+  .tl-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+  .tl-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .tl-mes { min-width: 70px; }
+  .tl-mes-nome { font-size: 12px; font-weight: 700; }
+  .tl-mes-val { font-size: 13px; font-weight: 800; }
+  .tl-desc { font-size: 12px; color: #6b7280; line-height: 1.5; }
+
+  .rodape { text-align: center; font-size: 11px; color: #9ca3af; padding-top: 10px; }
+</style>
+</head>
+<body>
+
+<div class="titulo-principal">Controle Financeiro</div>
+<div class="subtitulo">Junho 2026 · Davi Braga</div>
+
+<!-- SALÁRIO -->
+<div class="card-dark">
+  <div style="font-size:12px;color:#9ca3af;">SALÁRIO MENSAL</div>
+  <div class="salario-valor">R$ 1.700,00</div>
+  <div class="salario-row">
+    <div class="salario-item">
+      <div class="salario-item-label">Parcelas (Pix)</div>
+      <div class="salario-item-valor" style="color:#f87171;">− R$ 1.201,28</div>
+    </div>
+    <div class="salario-item">
+      <div class="salario-item-label">Sobra real</div>
+      <div class="salario-item-valor" style="color:#fb923c;">R$ 498,72</div>
+    </div>
+  </div>
+</div>
+
+<!-- ALERTA -->
+<div class="alerta">
+  ⚠️ <strong>Atenção:</strong> após pagar as 4 parcelas via Pix, sobram <strong>R$ 498,72</strong> para o mês inteiro — incluindo pagar a fatura do cartão no próximo ciclo.
+</div>
+
+<!-- SIMULADOR -->
+<div class="card">
+  <div class="sim-titulo">🎛️ Simulador do mês</div>
+
+  <div class="sim-row">
+    <div class="sim-header">
+      <span>Já gastei no débito</span>
+      <span class="sim-valor" id="val-debito">R$ 0,00</span>
+    </div>
+    <input type="range" id="slider-debito" min="0" max="498" step="5" value="0">
+    <div class="sim-minmax"><span>R$ 0</span><span>R$ 498</span></div>
+  </div>
+
+  <div class="sim-row">
+    <div class="sim-header">
+      <span>Extra no cartão (fora dos automáticos)</span>
+      <span class="sim-valor" id="val-extra">R$ 0,00</span>
+    </div>
+    <input type="range" id="slider-extra" min="0" max="500" step="5" value="0">
+    <div class="sim-minmax"><span>R$ 0</span><span>R$ 500</span></div>
+  </div>
+
+  <div class="hbo-row">
+    <span class="hbo-label">HBO Max cancelado?</span>
+    <button class="btn-hbo" id="btn-hbo" onclick="toggleHbo()">❌ Ainda ativo — R$ 55,90</button>
+  </div>
+</div>
+
+<!-- INDICADORES -->
+<div class="indicadores">
+  <div class="indicador">
+    <div class="ind-label">DÉBITO RESTANTE</div>
+    <div class="ind-valor" id="ind-debito-restante" style="color:#16a34a;">R$ 498,72</div>
+    <div class="barra-bg"><div class="barra-fill" id="barra-debito" style="width:0%;background:#16a34a;"></div></div>
+    <div class="ind-sub">de R$ 498,72 disponíveis</div>
+  </div>
+  <div class="indicador">
+    <div class="ind-label">FATURA PREVISTA</div>
+    <div class="ind-valor" id="ind-fatura" style="color:#16a34a;">R$ 478,73</div>
+    <div class="barra-bg"><div class="barra-fill" id="barra-fatura" style="width:28%;background:#16a34a;"></div></div>
+    <div class="ind-sub">meta: R$ 478,73 (só automáticos)</div>
+  </div>
+</div>
+
+<!-- STATUS -->
+<div class="status-box" id="status-box"></div>
+
+<!-- PARCELAS VIA PIX -->
+<div class="secao-label">Parcelas via Pix — saem do Mercado Pago</div>
+<div class="card" style="padding:12px 16px;">
+  <div class="linha-item">
+    <div><div class="linha-nome">Notebook — Wericlys</div><div class="linha-sub">Termina: Dez/2026</div></div>
+    <div><div class="linha-valor" style="color:#dc2626;">R$ 333,25</div><div class="linha-via">via Pix</div></div>
+  </div>
+  <div class="linha-item">
+    <div><div class="linha-nome">Celular — Neon</div><div class="linha-sub">Termina: Fev/2027</div></div>
+    <div><div class="linha-valor" style="color:#dc2626;">R$ 210,00</div><div class="linha-via">via Pix</div></div>
+  </div>
+  <div class="linha-item">
+    <div><div class="linha-nome">Empréstimo Nubank</div><div class="linha-sub">Termina: Jul/2026</div></div>
+    <div><div class="linha-valor" style="color:#dc2626;">R$ 259,03</div><div class="linha-via">via Pix</div></div>
+  </div>
+  <div class="linha-item">
+    <div><div class="linha-nome">Empréstimo adicional</div><div class="linha-sub">Termina: Jul/2026</div></div>
+    <div><div class="linha-valor" style="color:#dc2626;">R$ 399,00</div><div class="linha-via">via Pix</div></div>
+  </div>
+  <div class="total-row">
+    <span>Total bloqueado</span>
+    <span class="total-valor">R$ 1.201,28</span>
+  </div>
+</div>
+
+<!-- AUTOMÁTICOS NO CARTÃO -->
+<div class="secao-label">Automáticos no cartão — por data de cobrança</div>
+
+<div class="auto-item" style="background:#f0fdf4;border:1px solid rgba(22,163,74,0.2);">
+  <div>
+    <div class="auto-nome">🛒 Parcela ML (11/12)</div>
+    <div class="auto-vence">📅 Vence: 07/jun</div>
+    <span class="badge" style="color:#16a34a;background:rgba(22,163,74,0.1);">MANTER</span>
+  </div>
+  <div><div class="auto-valor">R$ 64,15</div></div>
+</div>
+
+<div class="auto-item" style="background:#f0fdf4;border:1px solid rgba(22,163,74,0.2);">
+  <div>
+    <div class="auto-nome">📡 NET Residencial</div>
+    <div class="auto-vence">📅 Vence: ~08/jun</div>
+    <span class="badge" style="color:#16a34a;background:rgba(22,163,74,0.1);">MANTER</span>
+  </div>
+  <div><div class="auto-valor">R$ 115,00</div></div>
+</div>
+
+<div class="auto-item" style="background:#f0fdf4;border:1px solid rgba(22,163,74,0.2);">
+  <div>
+    <div class="auto-nome">💊 Farmácia Floresta</div>
+    <div class="auto-vence">📅 Vence: ~15/jun</div>
+    <span class="badge" style="color:#16a34a;background:rgba(22,163,74,0.1);">MANTER</span>
+  </div>
+  <div><div class="auto-valor">R$ 40,89</div></div>
+</div>
+
+<div class="auto-item" style="background:#f0fdf4;border:1px solid rgba(22,163,74,0.2);">
+  <div>
+    <div class="auto-nome">💪 Wellhub / Gympass</div>
+    <div class="auto-vence">📅 Vence: 15/jun</div>
+    <span class="badge" style="color:#16a34a;background:rgba(22,163,74,0.1);">MANTER</span>
+  </div>
+  <div><div class="auto-valor">R$ 119,90</div></div>
+</div>
+
+<div class="auto-item" style="background:#f0fdf4;border:1px solid rgba(22,163,74,0.2);">
+  <div>
+    <div class="auto-nome">📱 Claro Flex (seu chip)</div>
+    <div class="auto-vence">📅 Vence: ~16/jun</div>
+    <span class="badge" style="color:#16a34a;background:rgba(22,163,74,0.1);">MANTER</span>
+  </div>
+  <div><div class="auto-valor">R$ 40,00</div></div>
+</div>
+
+<div class="auto-item" style="background:#f0fdf4;border:1px solid rgba(22,163,74,0.2);">
+  <div>
+    <div class="auto-nome">📱 Claro chip da mãe</div>
+    <div class="auto-vence">📅 Vence: ~16/jun</div>
+    <span class="badge" style="color:#16a34a;background:rgba(22,163,74,0.1);">MANTER</span>
+  </div>
+  <div><div class="auto-valor">R$ 20,00</div></div>
+</div>
+
+<div class="auto-item" style="background:#fef2f2;border:1px solid rgba(220,38,38,0.2);">
+  <div>
+    <div class="auto-nome">📺 HBO Max</div>
+    <div class="auto-vence">📅 Renova: 18/jun ⚠️</div>
+    <span class="badge" style="color:#dc2626;background:rgba(220,38,38,0.1);">CANCELAR ANTES DE 18/JUN</span>
+  </div>
+  <div><div class="auto-valor" style="color:#dc2626;">R$ 55,90</div><div class="auto-sub" style="color:#dc2626;">cancelar já</div></div>
+</div>
+
+<div class="auto-item" style="background:#f0fdf4;border:1px solid rgba(22,163,74,0.2);">
+  <div>
+    <div class="auto-nome">🍎 Apple One Family</div>
+    <div class="auto-vence">📅 Vence: 22/jun</div>
+    <span class="badge" style="color:#16a34a;background:rgba(22,163,74,0.1);">MANTER</span>
+  </div>
+  <div><div class="auto-valor">R$ 59,90</div></div>
+</div>
+
+<div class="auto-item" style="background:#fffbeb;border:1px solid rgba(217,119,6,0.2);">
+  <div>
+    <div class="auto-nome">📧 Gmail Google One</div>
+    <div class="auto-vence">📅 Vence: 27/jun</div>
+    <span class="badge" style="color:#d97706;background:rgba(217,119,6,0.1);">AVALIAR — R$ 9,99</span>
+  </div>
+  <div><div class="auto-valor">R$ 9,99</div></div>
+</div>
+
+<div class="auto-item" style="background:#fffbeb;border:1px solid rgba(217,119,6,0.2);">
+  <div>
+    <div class="auto-nome">🛍️ MeLiMais</div>
+    <div class="auto-vence">📅 Mensal</div>
+    <span class="badge" style="color:#d97706;background:rgba(217,119,6,0.1);">AVALIAR — só se comprar no ML</span>
+  </div>
+  <div><div class="auto-valor">R$ 8,90</div></div>
+</div>
+
+<div class="card-meta">
+  <div>
+    <div class="meta-label">Fatura mínima esperada</div>
+    <div class="meta-sub">(sem HBO Max + zero extra)</div>
+  </div>
+  <div class="meta-valor">R$ 478,73</div>
+</div>
+
+<!-- DÉBITO DISPONÍVEL -->
+<div class="secao-label" style="margin-top:14px;">Quanto posso gastar no débito?</div>
+<div class="card">
+  <div style="font-size:13px;color:#374151;line-height:1.6;">O que sobra do salário após as parcelas via Pix:</div>
+  <div class="debito-row"><span>Salário</span><span style="font-weight:700;">R$ 1.700,00</span></div>
+  <div class="debito-row"><span style="color:#dc2626;">− Parcelas Pix</span><span style="font-weight:700;color:#dc2626;">− R$ 1.201,28</span></div>
+  <div class="debito-total"><span>Disponível total</span><span class="debito-total-val">R$ 498,72</span></div>
+
+  <div class="aviso-debito">
+    ⚠️ Desses R$ 498,72, você precisará pagar a fatura do Nubank no próximo vencimento (~6/jul). A fatura mínima prevista é <strong>R$ 478,73</strong>. Isso deixa apenas <strong>R$ 19,99</strong> de sobra real se gastar zero extra no cartão.
+  </div>
+
+  <div class="estrategia-titulo">ESTRATÉGIA RECOMENDADA PARA O MÊS:</div>
+  <div class="estrat-row"><span style="color:#374151;">Reservar para fatura Nubank</span><span style="font-weight:700;color:#dc2626;">R$ 478,73</span></div>
+  <div class="estrat-row"><span style="color:#374151;">Combustível (moto — estimativa)</span><span style="font-weight:700;color:#d97706;">R$ 80,00</span></div>
+  <div class="estrat-row"><span style="color:#374151;">Supermercado básico</span><span style="font-weight:700;color:#d97706;">R$ 200,00</span></div>
+  <div class="estrat-row"><span style="color:#374151;">Energia elétrica + água (MP)</span><span style="font-weight:700;color:#d97706;">R$ 60,00</span></div>
+  <div class="estrat-row"><span style="color:#374151;">Emergências / imprevistos</span><span style="font-weight:700;color:#2563eb;">R$ 100,00</span></div>
+  <div class="estrat-total"><span>Total alocado</span><span style="color:#dc2626;font-size:15px;font-weight:800;">R$ 918,73</span></div>
+
+  <div class="resultado-orcamento" style="background:#fef2f2;border:1px solid #dc2626;color:#dc2626;">
+    ⛔ O total alocado (R$ 918,73) supera o disponível de R$ 498,72. <strong>Junho ainda depende de ajuda familiar para fechar</strong>. O alívio real começa em agosto, quando terminam R$ 722,18 em compromissos.
+  </div>
+</div>
+
+<!-- REGRAS -->
+<div class="secao-label">Regras do mês</div>
+<div class="card" style="padding:14px 16px;">
+  <div class="regra-item"><span class="regra-emoji">🚫</span><span class="regra-texto">Zero compras no Shopee, Mercado Livre ou Amazon em junho</span></div>
+  <div class="regra-item"><span class="regra-emoji">🚫</span><span class="regra-texto">Zero parcelamento novo no cartão</span></div>
+  <div class="regra-item"><span class="regra-emoji">🍽️</span><span class="regra-texto">Restaurante: máx. 1× por semana, máx. R$ 50, só no débito</span></div>
+  <div class="regra-item"><span class="regra-emoji">💳</span><span class="regra-texto">Supermercado: sempre no débito (MP), nunca no cartão</span></div>
+  <div class="regra-item"><span class="regra-emoji">📊</span><span class="regra-texto">Toda quinta: abrir o Nubank e ver o saldo em aberto</span></div>
+  <div class="regra-item" style="border-bottom:none;"><span class="regra-emoji">📺</span><span class="regra-texto">Cancelar HBO Max antes de 18/jun — acesso continua até lá</span></div>
+</div>
+
+<!-- TIMELINE -->
+<div class="secao-label">Alívio financeiro — linha do tempo</div>
+<div class="card" style="padding:14px 16px;">
+  <div class="tl-item">
+    <div class="tl-mes"><div class="tl-mes-nome" style="color:#16a34a;">Ago/2026</div><div class="tl-mes-val" style="color:#16a34a;">+R$ 722</div></div>
+    <div class="tl-desc">Empréstimo Nu + empréstimo adicional + parcela ML terminam</div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-mes"><div class="tl-mes-nome" style="color:#16a34a;">Jan/2027</div><div class="tl-mes-val" style="color:#16a34a;">+R$ 333</div></div>
+    <div class="tl-desc">Notebook (Wericlys) termina</div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-mes"><div class="tl-mes-nome" style="color:#16a34a;">Mar/2027</div><div class="tl-mes-val" style="color:#16a34a;">+R$ 210</div></div>
+    <div class="tl-desc">Celular (Neon) termina</div>
+  </div>
+  <div class="tl-item" style="border-bottom:none;padding-bottom:0;">
+    <div class="tl-mes"><div class="tl-mes-nome" style="color:#2563eb;">Mar/2027</div><div class="tl-mes-val" style="color:#2563eb;">R$ 1.265</div></div>
+    <div class="tl-desc" style="color:#2563eb;font-weight:600;">Total liberado permanentemente por mês</div>
+  </div>
+</div>
+
+<div class="rodape">Atualizado com dados reais dos extratos · Jun/2026</div>
+
+<script>
+  const SALARIO = 1700;
+  const TOTAL_PIX = 1201.28;
+  const DISPONIVEL = 498.72;
+  const AUTO_SEM_HBO = 478.73;
+  const AUTO_COM_HBO = 534.63;
+
+  let hboAtivo = true;
+
+  function fmt(v) {
+    return 'R$ ' + v.toFixed(2).replace('.', ',');
+  }
+
+  function cor(pct, inv) {
+    if (inv) {
+      return pct > 85 ? '#dc2626' : pct > 60 ? '#d97706' : '#16a34a';
+    }
+    return pct > 85 ? '#dc2626' : pct > 60 ? '#d97706' : '#16a34a';
+  }
+
+  function atualizar() {
+    const debito = parseFloat(document.getElementById('slider-debito').value);
+    const extra = parseFloat(document.getElementById('slider-extra').value);
+    const autoAtual = hboAtivo ? AUTO_COM_HBO : AUTO_SEM_HBO;
+    const faturaPrevista = autoAtual + extra;
+    const debitoRestante = DISPONIVEL - debito;
+    const pctDebito = Math.min((debito / DISPONIVEL) * 100, 100);
+    const pctFatura = Math.min((faturaPrevista / SALARIO) * 100, 100);
+    const corD = pctDebito > 85 ? '#dc2626' : pctDebito > 60 ? '#d97706' : '#16a34a';
+    const corF = pctFatura > 60 ? '#dc2626' : pctFatura > 35 ? '#d97706' : '#16a34a';
+
+    document.getElementById('val-debito').textContent = fmt(debito);
+    document.getElementById('val-extra').textContent = fmt(extra);
+
+    const elDebRest = document.getElementById('ind-debito-restante');
+    elDebRest.textContent = fmt(Math.max(0, debitoRestante));
+    elDebRest.style.color = debitoRestante < 50 ? '#dc2626' : debitoRestante < 150 ? '#d97706' : '#16a34a';
+
+    const elFat = document.getElementById('ind-fatura');
+    elFat.textContent = fmt(faturaPrevista);
+    elFat.style.color = corF;
+
+    document.getElementById('barra-debito').style.width = pctDebito + '%';
+    document.getElementById('barra-debito').style.background = corD;
+    document.getElementById('barra-fatura').style.width = pctFatura + '%';
+    document.getElementById('barra-fatura').style.background = corF;
+
+    // Sliders
+    document.getElementById('slider-debito').style.background =
+      `linear-gradient(to right, ${corD} 0%, ${corD} ${pctDebito}%, #e5e7eb ${pctDebito}%, #e5e7eb 100%)`;
+    document.getElementById('slider-extra').style.background =
+      `linear-gradient(to right, ${corF} 0%, ${corF} ${Math.min((extra/500)*100,100)}%, #e5e7eb ${Math.min((extra/500)*100,100)}%, #e5e7eb 100%)`;
+    document.getElementById('slider-debito').style.setProperty('color', corD);
+    document.getElementById('slider-extra').style.setProperty('color', corF);
+
+    // Thumb color via CSS var workaround
+    document.querySelectorAll('input[type=range]').forEach(s => {
+      s.style.accentColor = corD;
+    });
+    document.getElementById('slider-extra').style.accentColor = corF;
+
+    // Status
+    const total = debito + faturaPrevista + TOTAL_PIX;
+    const saldo = SALARIO - total;
+    const statusBox = document.getElementById('status-box');
+    if (saldo < 0) {
+      statusBox.style.background = 'rgba(220,38,38,0.1)';
+      statusBox.style.border = '1px solid rgba(220,38,38,0.3)';
+      statusBox.style.color = '#dc2626';
+      statusBox.textContent = '⛔ Déficit de ' + fmt(Math.abs(saldo)) + ' — precisará de ajuda ou vai zerar';
+    } else if (saldo < 100) {
+      statusBox.style.background = 'rgba(217,119,6,0.1)';
+      statusBox.style.border = '1px solid rgba(217,119,6,0.3)';
+      statusBox.style.color = '#d97706';
+      statusBox.textContent = '⚠️ Sobra apenas ' + fmt(saldo) + ' — margem muito apertada';
+    } else {
+      statusBox.style.background = 'rgba(22,163,74,0.1)';
+      statusBox.style.border = '1px solid rgba(22,163,74,0.3)';
+      statusBox.style.color = '#16a34a';
+      statusBox.textContent = '✅ Sobra ' + fmt(saldo) + ' — mês dentro do controle';
+    }
+  }
+
+  function toggleHbo() {
+    hboAtivo = !hboAtivo;
+    const btn = document.getElementById('btn-hbo');
+    if (hboAtivo) {
+      btn.style.background = '#dc2626';
+      btn.textContent = '❌ Ainda ativo — R$ 55,90';
+    } else {
+      btn.style.background = '#16a34a';
+      btn.textContent = '✅ Cancelado — economizou R$ 55,90';
+    }
+    atualizar();
+  }
+
+  document.getElementById('slider-debito').addEventListener('input', atualizar);
+  document.getElementById('slider-extra').addEventListener('input', atualizar);
+  document.getElementById('btn-hbo').style.background = '#dc2626';
+
+  atualizar();
+</script>
+</body>
+</html>
