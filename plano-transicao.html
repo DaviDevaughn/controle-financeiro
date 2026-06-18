@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Plano de Transição — Sem Renda Fixa</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f3f4f6;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    padding: 20px 16px 40px;
+    max-width: 480px;
+    margin: 0 auto;
+    color: #111;
+  }
+  .titulo-principal { font-size: 22px; font-weight: 800; }
+  .subtitulo { font-size: 13px; color: #6b7280; margin-top: 2px; margin-bottom: 20px; }
+
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    margin-bottom: 14px;
+  }
+  .card-dark {
+    background: #111;
+    color: #fff;
+    border-radius: 16px;
+    padding: 20px 18px;
+    margin-bottom: 14px;
+  }
+  .secao-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .alerta-vermelho {
+    background: #fef2f2;
+    border: 1px solid #dc2626;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #991b1b;
+    line-height: 1.6;
+  }
+  .alerta-amarelo {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #92400e;
+    line-height: 1.5;
+  }
+
+  .label-grande { font-size: 12px; color: #9ca3af; }
+  .valor-grande { font-size: 30px; font-weight: 800; margin-top: 4px; }
+
+  .input-group { margin-bottom: 14px; }
+  .input-label { font-size: 12px; font-weight: 700; color: #374151; margin-bottom: 6px; display: block; }
+  .input-hint { font-size: 11px; color: #9ca3af; margin-bottom: 6px; }
+  input[type=number] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #111;
+  }
+  input[type=number]:focus { outline: none; border-color: #2563eb; }
+
+  .linha-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  .linha-item:last-child { border-bottom: none; }
+  .linha-nome { font-size: 13px; font-weight: 600; }
+  .linha-sub { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+  .linha-valor { font-size: 15px; font-weight: 800; text-align: right; }
+  .total-row {
+    display: flex; justify-content: space-between;
+    padding-top: 10px; border-top: 2px solid #111; margin-top: 2px;
+    font-size: 13px; font-weight: 700;
+  }
+
+  .timeline-mes {
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    border-left: 4px solid #e5e7eb;
+  }
+  .timeline-mes.ok { border-left-color: #16a34a; }
+  .timeline-mes.atencao { border-left-color: #d97706; }
+  .timeline-mes.critico { border-left-color: #dc2626; }
+  .tm-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .tm-titulo { font-size: 14px; font-weight: 800; }
+  .tm-saldo { font-size: 18px; font-weight: 800; }
+  .tm-linha { display: flex; justify-content: space-between; font-size: 12px; color: #6b7280; padding: 3px 0; }
+  .tm-linha strong { color: #111; }
+
+  .regra-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+  .regra-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .regra-emoji { font-size: 18px; flex-shrink: 0; }
+  .regra-texto { font-size: 13px; color: #374151; line-height: 1.5; }
+
+  .btn-recalcular {
+    width: 100%;
+    background: #111;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .btn-recalcular:active { background: #2563eb; }
+
+  .rodape { text-align: center; font-size: 11px; color: #9ca3af; padding-top: 10px; }
+</style>
+</head>
+<body>
+
+<div class="titulo-principal">Plano de Transição</div>
+<div class="subtitulo">Sem renda fixa · Aviso prévio MB Soluções</div>
+
+<div class="alerta-vermelho">
+  📌 <strong>Situação atual:</strong> você está em aviso prévio. O salário de R$ 1.700/mês vai parar de entrar. Este painel calcula quanto tempo seu dinheiro (rescisão + seguro-desemprego) sustenta seus gastos essenciais até você ter renda nova.
+</div>
+
+<div class="card">
+  <div class="secao-label" style="margin-bottom:14px;">Insira seus valores reais</div>
+
+  <div class="input-group">
+    <label class="input-label">Valor da rescisão (já confirmado ou estimado)</label>
+    <div class="input-hint">Entre R$ 5.600 e R$ 5.900 — coloque o valor exato quando souber</div>
+    <input type="number" id="in-rescisao" value="5750" step="50">
+  </div>
+
+  <div class="input-group">
+    <label class="input-label">Quanto sobrou agora (antes da rescisão cair)</label>
+    <input type="number" id="in-disponivel" value="300" step="10">
+  </div>
+
+  <div class="input-group">
+    <label class="input-label">Valor de cada parcela do seguro-desemprego</label>
+    <div class="input-hint">Confirme no app Carteira de Trabalho Digital</div>
+    <input type="number" id="in-seguro-valor" value="1518" step="10">
+  </div>
+
+  <div class="input-group">
+    <label class="input-label">Quantas parcelas de seguro você tem direito</label>
+    <input type="number" id="in-seguro-parcelas" value="4" step="1" min="0" max="5">
+  </div>
+
+  <button class="btn-recalcular" onclick="recalcular()">🔄 Recalcular plano</button>
+</div>
+
+<div class="card-dark">
+  <div class="label-grande" style="color:#9ca3af;">CUSTO MÍNIMO MENSAL (sem renda)</div>
+  <div class="valor-grande" id="custo-minimo">R$ 1.528,14</div>
+  <div style="font-size:11px;color:#9ca3af;margin-top:6px;">Dívidas + essenciais + alimentação + combustível + energia</div>
+</div>
+
+<div class="secao-label">Dívidas fixas — continuam mesmo sem renda</div>
+<div class="card" style="padding:12px 16px;">
+  <div class="linha-item">
+    <div><div class="linha-nome">Notebook — Wericlys</div><div class="linha-sub">Termina: Dez/2026</div></div>
+    <div class="linha-valor" style="color:#dc2626;">R$ 333,25</div>
+  </div>
+  <div class="linha-item">
+    <div><div class="linha-nome">Celular — Neon</div><div class="linha-sub">Termina: Fev/2027</div></div>
+    <div class="linha-valor" style="color:#dc2626;">R$ 210,00</div>
+  </div>
+  <div class="linha-item">
+    <div><div class="linha-nome">Empréstimo Shopee</div><div class="linha-sub">Termina: Jul/2026</div></div>
+    <div class="linha-valor" style="color:#dc2626;">R$ 399,00</div>
+  </div>
+  <div class="total-row">
+    <span>Total dívidas</span>
+    <span style="color:#dc2626;font-size:15px;">R$ 942,25</span>
+  </div>
+</div>
+
+<div style="background:#f0fdf4;border:1px solid #16a34a;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#166534;">
+  ✅ Empréstimo Nubank (R$ 259,03) já está quitado — removido do cálculo.
+</div>
+
+<div class="secao-label">Essenciais — telecom e saúde</div>
+<div class="card" style="padding:12px 16px;">
+  <div class="linha-item">
+    <div><div class="linha-nome">NET + Claro residencial</div><div class="linha-sub">Internet de casa</div></div>
+    <div class="linha-valor">R$ 115,00</div>
+  </div>
+  <div class="linha-item">
+    <div><div class="linha-nome">Claro Flex (seu chip)</div></div>
+    <div class="linha-valor">R$ 40,00</div>
+  </div>
+  <div class="linha-item">
+    <div><div class="linha-nome">Claro chip da mãe</div></div>
+    <div class="linha-valor">R$ 20,00</div>
+  </div>
+  <div class="linha-item">
+    <div><div class="linha-nome">Farmácia (medicamento)</div></div>
+    <div class="linha-valor">R$ 40,89</div>
+  </div>
+  <div class="total-row">
+    <span>Total essenciais</span>
+    <span style="font-size:15px;">R$ 215,89</span>
+  </div>
+</div>
+
+<div class="secao-label">Custo de vida básico</div>
+<div class="card" style="padding:12px 16px;">
+  <div class="linha-item">
+    <div class="linha-nome">Alimentação / supermercado</div>
+    <div class="linha-valor">R$ 250,00</div>
+  </div>
+  <div class="linha-item">
+    <div class="linha-nome">Combustível (moto)</div>
+    <div class="linha-valor">R$ 60,00</div>
+  </div>
+  <div class="linha-item">
+    <div class="linha-nome">Energia + água</div>
+    <div class="linha-valor">R$ 60,00</div>
+  </div>
+  <div class="total-row">
+    <span>Total vida básica</span>
+    <span style="font-size:15px;">R$ 370,00</span>
+  </div>
+</div>
+
+<div class="secao-label">Avaliar pausar durante a transição</div>
+<div class="card" style="padding:12px 16px;">
+  <div class="linha-item">
+    <div><div class="linha-nome">📺 HBO Max</div><div class="linha-sub">Cancelar agora</div></div>
+    <div class="linha-valor" style="color:#dc2626;">R$ 55,90</div>
+  </div>
+  <div class="linha-item">
+    <div><div class="linha-nome">💪 Wellhub/Gympass</div><div class="linha-sub">Avaliar pausa temporária</div></div>
+    <div class="linha-valor" style="color:#d97706;">R$ 119,90</div>
+  </div>
+  <div class="linha-item">
+    <div><div class="linha-nome">🍎 Apple One Family</div><div class="linha-sub">Avaliar</div></div>
+    <div class="linha-valor" style="color:#d97706;">R$ 59,90</div>
+  </div>
+  <div class="linha-item">
+    <div><div class="linha-nome">📧 Gmail Google One</div></div>
+    <div class="linha-valor" style="color:#d97706;">R$ 9,99</div>
+  </div>
+  <div class="linha-item">
+    <div><div class="linha-nome">🛍️ MeLiMais</div></div>
+    <div class="linha-valor" style="color:#d97706;">R$ 8,90</div>
+  </div>
+  <div class="linha-item">
+    <div><div class="linha-nome">🛒 Parcela ML cartão</div><div class="linha-sub">Termina Jul/2026 sozinha</div></div>
+    <div class="linha-valor">R$ 64,15</div>
+  </div>
+  <div class="total-row">
+    <span>Total pausável</span>
+    <span style="font-size:15px;">R$ 318,74</span>
+  </div>
+</div>
+
+<div class="secao-label">Projeção mês a mês — seu colchão</div>
+<div id="timeline-container"></div>
+
+<div class="alerta-amarelo">
+  ⚠️ <strong>Confirme antes de confiar nesses números:</strong> o valor e número de parcelas do seguro-desemprego são estimativas. Acesse o app <strong>Carteira de Trabalho Digital</strong> para confirmar os valores reais e ajuste os campos no topo do painel.
+</div>
+
+<div class="secao-label">Regras durante a transição</div>
+<div class="card" style="padding:14px 16px;">
+  <div class="regra-item"><span class="regra-emoji">🚫</span><span class="regra-texto">Não quitar nenhuma dívida adiantada com a rescisão — manter o caixa disponível</span></div>
+  <div class="regra-item"><span class="regra-emoji">🏦</span><span class="regra-texto">Separar a rescisão em conta que você não movimenta no dia a dia</span></div>
+  <div class="regra-item"><span class="regra-emoji">📅</span><span class="regra-texto">Transferir só o necessário do mês para a conta corrente, não tudo de uma vez</span></div>
+  <div class="regra-item"><span class="regra-emoji">🚫</span><span class="regra-texto">Zero parcelamento novo no cartão durante a transição</span></div>
+  <div class="regra-item"><span class="regra-emoji">📺</span><span class="regra-texto">Cancelar HBO Max hoje — sem função nesse momento</span></div>
+  <div class="regra-item" style="border-bottom:none;"><span class="regra-emoji">📊</span><span class="regra-texto">Toda semana: confirmar status do seguro-desemprego no app</span></div>
+</div>
+
+<div class="rodape">Plano de transição · dados a confirmar conforme seguro-desemprego</div>
+
+<script>
+  const CUSTO_DIVIDAS = 942.25;
+  const CUSTO_ESSENCIAIS = 215.89;
+  const CUSTO_VIDA = 370.00;
+  const CUSTO_MINIMO = CUSTO_DIVIDAS + CUSTO_ESSENCIAIS + CUSTO_VIDA;
+
+  function fmt(v) {
+    const sinal = v < 0 ? '-' : '';
+    return sinal + 'R$ ' + Math.abs(v).toFixed(2).replace('.', ',');
+  }
+
+  function recalcular() {
+    const rescisao = parseFloat(document.getElementById('in-rescisao').value) || 0;
+    const disponivel = parseFloat(document.getElementById('in-disponivel').value) || 0;
+    const seguroValor = parseFloat(document.getElementById('in-seguro-valor').value) || 0;
+    const seguroParcelas = parseInt(document.getElementById('in-seguro-parcelas').value) || 0;
+
+    let saldo = rescisao + disponivel;
+    const meses = [];
+
+    saldo -= CUSTO_MINIMO;
+    meses.push({ mes: 1, entrada: 0, saldo: saldo, label: 'Mês 1 — só rescisão (seguro ainda não cai)' });
+
+    for (let i = 2; i <= 8; i++) {
+      const entraSeguro = (i - 1) <= seguroParcelas;
+      const entrada = entraSeguro ? seguroValor : 0;
+      saldo += entrada;
+      saldo -= CUSTO_MINIMO;
+      meses.push({
+        mes: i,
+        entrada: entrada,
+        saldo: saldo,
+        label: entraSeguro ? ('Mês ' + i + ' — + parcela do seguro') : ('Mês ' + i + ' — sem seguro, sem salário')
+      });
+    }
+
+    const container = document.getElementById('timeline-container');
+    container.innerHTML = '';
+
+    meses.forEach(function(m) {
+      let classe = 'ok';
+      if (m.saldo < 0) classe = 'critico';
+      else if (m.saldo < 500) classe = 'atencao';
+
+      const cor = classe === 'ok' ? '#16a34a' : classe === 'atencao' ? '#d97706' : '#dc2626';
+
+      const div = document.createElement('div');
+      div.className = 'timeline-mes ' + classe;
+      div.innerHTML =
+        '<div class="tm-header">' +
+          '<span class="tm-titulo">' + m.label + '</span>' +
+          '<span class="tm-saldo" style="color:' + cor + ';">' + fmt(m.saldo) + '</span>' +
+        '</div>' +
+        '<div class="tm-linha"><span>Custo essencial do mês</span><span><strong>' + fmt(-CUSTO_MINIMO) + '</strong></span></div>' +
+        (m.entrada > 0 ? '<div class="tm-linha"><span>Seguro-desemprego</span><span><strong style="color:#16a34a;">+' + fmt(m.entrada) + '</strong></span></div>' : '');
+      container.appendChild(div);
+    });
+
+    document.getElementById('custo-minimo').textContent = fmt(CUSTO_MINIMO);
+  }
+
+  recalcular();
+</script>
+</body>
+</html>
